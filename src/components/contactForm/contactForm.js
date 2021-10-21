@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { newContactAction } from '../Redux/action';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
+import { addContact, getContacts } from '../Redux/Contact/contact-operation';
+import { getAllContacts } from '../Redux/contacts-selectors';
 
-function ContactForm({ contacts, addContact }) {
+function ContactForm({ contacts, addContact, getContacts }) {
   const [state, setState] = useState({
     name: '',
     number: '',
   });
+
+  useEffect(() => {
+    getContacts();
+  }, [getContacts]);
 
   const checkContact = () => {
     contacts.find(({ name }) => {
@@ -76,11 +81,12 @@ function ContactForm({ contacts, addContact }) {
 }
 
 const stateProps = state => ({
-  contacts: state.contacts,
+  contacts: getAllContacts(state),
 });
 
 const newContactDispatch = dispatch => ({
-  addContact: contact => dispatch(newContactAction(contact)),
+  addContact: contact => dispatch(addContact(contact)),
+  getContacts: () => dispatch(getContacts()),
 });
 
 export default connect(stateProps, newContactDispatch)(ContactForm);

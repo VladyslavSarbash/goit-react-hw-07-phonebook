@@ -1,12 +1,16 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { deleteAction } from '../Redux/action';
+import { deleteContact } from '../Redux/Contact/contact-operation';
+import inLoader from '../Loader/loader';
+import { filterContacts, getLoader } from '../Redux/contacts-selectors';
 
-function RenderContactList({ contacts, deleteContact }) {
+function RenderContactList({ contacts, deleteContact, loader }) {
   return (
     <div>
       <ul>
-        {contacts.length === 0 ? (
+        {loader ? (
+          inLoader()
+        ) : contacts.length === 0 ? (
           <h2>No contacts</h2>
         ) : (
           contacts.map(({ id, name, number }) => {
@@ -30,20 +34,13 @@ function RenderContactList({ contacts, deleteContact }) {
   );
 }
 
-const filterContacts = (contacts, filter) => {
-  return contacts.filter(({ name }) => {
-    const lowerValue = filter.toLowerCase();
-    return name.toLowerCase().includes(lowerValue);
-  });
-};
-
-const stateProp = ({ contacts, filter }) => ({
-  contacts: filterContacts(contacts, filter),
-  filter,
+const stateProp = state => ({
+  contacts: filterContacts(state),
+  loader: getLoader(state),
 });
 
 const deleteDispatch = dispatch => ({
-  deleteContact: id => dispatch(deleteAction(id)),
+  deleteContact: id => dispatch(deleteContact(id)),
 });
 
 export default connect(stateProp, deleteDispatch)(RenderContactList);
